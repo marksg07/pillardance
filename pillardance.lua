@@ -188,6 +188,7 @@ end
 function showPillar()
     if _path == nil then return end
     local x, y = travel.waypoint_delta(7)
+	if x == nil then return end
     local pathTiles = {}
     for i, t in ipairs(_path) do
         pathTiles[t] = true
@@ -198,6 +199,7 @@ end
 function hidePillar()
     if _path == nil then return end
     local x, y = travel.waypoint_delta(7)
+	if x == nil then return end
     local pathTiles = {}
     for i, t in ipairs(_path) do
         pathTiles[t] = true
