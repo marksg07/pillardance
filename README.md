@@ -4,7 +4,11 @@ Automates pillar dancing. Essentially, the user chooses a pillar (or rather, a t
 
 ![Demo (using manual mode)](https://i.imgur.com/KQH0oYo.gif)
 
+This is a demo of normal use of the script. This shows off the manual mode of pillar dancing. You can see that when the second hobgoblin comes into view on the bottom left, the pillar dance stops, as moving would take me closer to it. 
+
 ![Demo pt. 2 (automatic direction changing)](https://i.imgur.com/KQH0oYo.gif)
+
+This shows off the automatic direction switching. You can see that when we encounter the rat in the direction we were previously moving, we switch direction automatically.
 
 To use, you have to put the contents of the `pillardance.lua` script in your crawl RC file, inside a pair of curly braces {}, like:
 
