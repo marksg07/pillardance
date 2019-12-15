@@ -4,9 +4,9 @@ Automates pillar dancing. Essentially, the user chooses a pillar (or rather, a t
 
 <img src="https://gfycat.com/flakyblandaidi.gif">
 
-![Demo (using manual mode)](https://gfycat.com/animatedgloomycobra.gif)
+![Demo (using manual mode)](https://i.imgur.com/KQH0oYo.gif)
 
-![Demo pt. 2 (automatic direction changing)](https://gfycat.com/flakyblandaidi.gif)
+![Demo pt. 2 (automatic direction changing)](https://i.imgur.com/KQH0oYo.gif)
 
 To use, you have to put the contents of the `pillardance.lua` script in your crawl RC file, inside a pair of curly braces {}, like:
 
