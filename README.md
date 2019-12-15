@@ -2,8 +2,6 @@
 
 Automates pillar dancing. Essentially, the user chooses a pillar (or rather, a tile within a pillar), and the script automatically finds a shortest path around that pillar. It then automatically walks the user around the pillar as long as the user is able to walk away from all onscreen monsters until the user is at full HP and MP. As the script is certainly nowhere near a finished state, I have included a "manual" mode in which you can see where the pillar dance plans to take you next and "step" through the pillar dance.
 
-<img src="https://gfycat.com/flakyblandaidi.gif">
-
 ![Demo (using manual mode)](https://i.imgur.com/KQH0oYo.gif)
 
 ![Demo pt. 2 (automatic direction changing)](https://i.imgur.com/KQH0oYo.gif)
