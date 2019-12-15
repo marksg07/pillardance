@@ -6,7 +6,7 @@ Automates pillar dancing. Essentially, the user chooses a pillar (or rather, a t
 
 This is a demo of normal use of the script. This shows off the manual mode of pillar dancing. You can see that when the second hobgoblin comes into view on the bottom left, the pillar dance stops, as moving would take me closer to it. 
 
-![Demo pt. 2 (automatic direction changing)](https://i.imgur.com/LJIieVP.gif)
+<img src="cut-switch.gif?raw=true">
 
 This shows off the automatic direction switching. You can see that when we encounter the rat in the direction we were previously moving, we switch direction automatically.
 
