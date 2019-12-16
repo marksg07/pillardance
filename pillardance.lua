@@ -549,35 +549,6 @@ function floodFillWalls(x, y)
     return queue
 end
 
-function floodFillWallsHelper(x, y, used, counter)
-    if has(used, { x, y }) or travel.feature_traversable(view.feature_at(x, y)) then
-        return {}
-    end
-    local ffRes = newTupleSet()
-    ffRes[{ x, y }] = true
-    counter[1] = counter[1] + 1
-    if counter[1] >= 10000 then
-        crawl.mpr("Pillar too large! Did you select a map border?")
-        return nil
-    end
-    used[{ x, y }] = true
-    local n_pos = newTupleSet()
-    n_pos[{ 0, 1 }] = true
-    n_pos[{ 0, -1 }] = true
-    n_pos[{ 1, 0 }] = true
-    n_pos[{ -1, 0 }] = true
-    for oxoy, _ in pairs(n_pos) do
-        local off_x = oxoy[1]
-        local off_y = oxoy[2]
-        local ff = floodFillWallsHelper(x + off_x, y + off_y, used, counter)
-        if ff == nil then
-            return nil
-        end
-        extendSet(ffRes, ff)
-    end
-    return ffRes
-end
-
 function getNeighboringFloors(tiles)
     local neighbors = {}
     local n_pos = newTupleSet()
