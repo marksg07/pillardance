@@ -347,9 +347,9 @@ function doSearch(x, y)
     if pillar == nil then
         return nil
     end
-    local xmin, ymin, xmax, ymax = getBbox(pillar.tiles)
+    local xmin, ymin, xmax, ymax = getBbox(pillar)
     -- find two distinct tiles on the outline which are on the outline's axis aligned bounding box.
-    local x1, y1, x2, y2 = findTwoTilesOnBorder(pillar.tiles, xmin, ymin, xmax, ymax)
+    local x1, y1, x2, y2 = findTwoTilesOnBorder(pillar, xmin, ymin, xmax, ymax)
     local tileset = getTilesInBox(xmin, ymin, xmax, ymax)
     -- find the shortest path between those two tiles.
     local path = getPath(tileset, x1, y1, x2, y2)
@@ -450,7 +450,7 @@ end
 
 
 function getTilesInBox(xmin, ymin, xmax, ymax)
-    local tiles = {}
+    local tiles = mk.new()
     for x = xmin, xmax do
         for y = ymin, ymax do
             mk.put(tiles, x, y, travel.feature_traversable(view.feature_at(x, y)))
@@ -460,10 +460,12 @@ function getTilesInBox(xmin, ymin, xmax, ymax)
 end
 
 function create(x, y)
-    local pillar = {}
     -- flood fill the wall tiles of the pillar, then get the orthogonally neighboring walkable tiles
-    pillar.tiles = getNeighboringFloors(floodFillWalls(x, y))
-    return pillar
+    local walls = floodFillWalls(x, y)
+    if walls == nil then
+        return nil
+    end
+    return getNeighboringFloors(walls)
 end
 
 function showTiles(tiles, offx, offy)
@@ -514,7 +516,37 @@ function newTupleSet()
 end
 
 function floodFillWalls(x, y)
-    return floodFillWallsHelper(x, y, {}, { 0 })
+    if travel.feature_traversable(view.feature_at(x, y)) then
+        return nil
+    end
+    local counter = 1
+    local used = mk.new()
+    used:put(x, y, true)
+    local queue = {}
+    queue[1] = {x, y}
+    local queue_next = 1
+    local n_pos = {}
+    n_pos[{ 0, 1 }] = true
+    n_pos[{ 0, -1 }] = true
+    n_pos[{ 1, 0 }] = true
+    n_pos[{ -1, 0 }] = true
+    while queue_next <= #queue do
+        local x, y = unpack(queue[queue_next])
+        queue_next = queue_next + 1
+        for oxoy, _ in pairs(n_pos) do
+            local off_x, off_y = unpack(oxoy)
+            if mk.get(used, x + off_x, y + off_y) == nil and not travel.feature_traversable(view.feature_at(x + off_x, y + off_y)) then
+                counter = counter + 1
+                if counter > 1000 then
+                    crawl.mpr("Pillar too large! Did you select a map border?")
+                    return nil
+                end
+                used:put(x + off_x, y + off_y, true)
+                queue[#queue + 1] = {x + off_x, y + off_y }
+            end
+        end
+    end
+    return queue
 end
 
 function floodFillWallsHelper(x, y, used, counter)
@@ -524,7 +556,7 @@ function floodFillWallsHelper(x, y, used, counter)
     local ffRes = newTupleSet()
     ffRes[{ x, y }] = true
     counter[1] = counter[1] + 1
-    if counter[1] >= 1000 then
+    if counter[1] >= 10000 then
         crawl.mpr("Pillar too large! Did you select a map border?")
         return nil
     end
@@ -553,7 +585,7 @@ function getNeighboringFloors(tiles)
     n_pos[{ 0, -1 }] = true
     n_pos[{ 1, 0 }] = true
     n_pos[{ -1, 0 }] = true
-    for xy, _ in pairs(tiles) do
+    for _, xy in ipairs(tiles) do
         local x, y = unpack(xy)
         for oxoy, _ in pairs(n_pos) do
             local off_x, off_y = unpack(oxoy)
@@ -644,9 +676,9 @@ end
 
 function getPath(tileset, x1, y1, x2, y2)
     -- we just use dijkstra's to get the shortest path
-    local dist = {}
-    local nodes = {}
-    local prev = {}
+    local dist = mk.new()
+    local nodes = mk.new()
+    local prev = mk.new()
     for _, x, y, trav in mk.tuples(tileset) do
         if trav then
             mk.put(dist, x, y, 10000)
