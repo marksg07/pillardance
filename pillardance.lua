@@ -12,9 +12,9 @@ _pillarDance = false
 
 function inputTogglePillar()
 	local px, py = crawl.get_target()
+	local wx, wy = travel.waypoint_delta(7)
 
-	if _pillar ~= nil then
-		local wx, wy = travel.waypoint_delta(7)
+	if _pillar ~= nil and wx ~= nil then
 		for i, xy in ipairs(_pillar) do
 			if xy[1] == wx + px and xy[2] == wy + py then
 				killPillar()
@@ -22,8 +22,9 @@ function inputTogglePillar()
 				return
 			end
 		end
-		killPillar()
 	end
+
+	killPillar()
 	doSearch(px, py)
     travel.set_waypoint(7, 0, 0)
 end
