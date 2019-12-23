@@ -647,29 +647,32 @@ end
 
 function getPath(tileset, x1, y1, x2, y2)
     -- we just use dijkstra's to get the shortest path
+    local pq = newPriorityQueue()
     local dist = mk.new()
     local nodes = mk.new()
     local prev = mk.new()
     for _, x, y, trav in mk.tuples(tileset) do
         if trav then
-            mk.put(dist, x, y, 10000)
-            mk.put(nodes, x, y, true)
+            dist:put(x, y, math.huge)
+            nodes:put(x, y, true)
         end
     end
-    mk.put(dist, x1, y1, 0)
-    while next(nodes) ~= nil do
-        local u = getMinTile(nodes, dist)
+    pq:insert({val={x1, y1}, cost=0})
+    dist:put(x1, y1, 0)
+    while not pq:empty() do
+    	local u = pq:popMin().val
         assert(u ~= nil)
         mk.put(nodes, u[1], u[2], nil)
         if u[1] == x2 and u[2] == y2 then
-            assert(mk.get(prev, u[1], u[2]) ~= nil)
+            assert(prev:get(u[1], u[2]) ~= nil)
             return parsePrev(prev, x1, y1, x2, y2)
         end
         for v, _ in pairs(getNeighboring(nodes, u[1], u[2])) do
-            local altDist = mk.get(dist, u[1], u[2]) + 1
-            if mk.get(dist, v[1], v[2]) == nil or altDist < mk.get(dist, v[1], v[2]) then
-                mk.put(dist, v[1], v[2], altDist)
-                mk.put(prev, v[1], v[2], u)
+            local altDist = dist:get(u[1], u[2]) + 1
+            if dist:get(v[1], v[2]) == nil or altDist < dist:get(v[1], v[2]) then
+                dist:put(v[1], v[2], altDist)
+                prev:put(v[1], v[2], u)
+                pq:insert({val=v, cost=altDist})
             end
         end
     end
@@ -898,6 +901,101 @@ local function getMk()
     end
 
     return M
+end
+
+function newPriorityQueue()
+	local lt = function(a, b)
+		return a.cost < b.cost
+	end
+	return MinHeap.new(lt)
+end
+
+MinHeap = {}
+MH_meta = { __index = MinHeap }
+
+function getminfn(ltfn)
+	return function(a, b)
+		if ltfn(a, b) then
+			return a
+		else
+			return b
+		end
+	end
+end
+
+function MinHeap.new(ltfn)
+	if ltfn == nil then
+		ltfn = function(a, b) return a < b end
+	end
+	local minfn = getminfn(ltfn)
+	local t = setmetatable({}, MH_meta)
+	t.lt = ltfn
+	t.min = minfn
+	return t
+end
+
+function MinHeap.getMin(heap)
+	return heap[1]
+end
+
+function MinHeap.popMin(heap)
+	local min = heap[1]
+	heap[1] = heap[#heap]
+	heap[#heap] = nil
+	downheap(heap, 1)
+	return min
+end
+
+function MinHeap.insert(heap, val)
+	heap[#heap + 1] = val
+	upheap(heap, #heap)
+end
+
+function MinHeap.empty(heap)
+	return #heap == 0
+end
+
+function downheap(heap, idx)
+	local l = 2 * idx
+	local r = 2 * idx + 1
+	if heap[l] ~= nil then
+		if heap[r] ~= nil then
+			local minchild = heap.min(heap[l], heap[r])
+			if not heap.lt(minchild, heap[idx]) then
+				return
+			end
+			local swap
+			if minchild == heap[l] then
+				swap = l
+			else
+				swap = r
+			end
+			heap[swap] = heap[idx]
+			heap[idx] = minchild
+			downheap(heap, swap)
+		else
+			if not heap.lt(heap[l], heap[idx]) then
+				return
+			end
+			local temp = heap[l]
+			heap[l] = heap[idx]
+			heap[idx] = temp
+		end
+	end
+end
+
+function upheap(heap, idx)
+	if idx == 1 then
+		return
+	end
+	local parent = math.floor(idx / 2)
+	if not heap.lt(heap[idx], heap[parent]) then
+		return
+	end
+	local temp = heap[parent]
+	heap[parent] = heap[idx]
+	heap[idx] = heap[temp]
+	upheap(heap, parent)
 end
 
 mk = getMk()
