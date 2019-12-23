@@ -2,12 +2,31 @@
 auto = false
 
 mk = 1
+_pillar = nil
 _path = nil
 _seqForward = nil
 _seqBackward = nil
 _seqidx = 0
 _dir = true
 _pillarDance = false
+
+function inputTogglePillar()
+	local px, py = crawl.get_target()
+
+	if _pillar ~= nil then
+		local wx, wy = travel.waypoint_delta(7)
+		for i, xy in ipairs(_pillar) do
+			if xy[1] == wx + px and xy[2] == wy + py then
+				killPillar()
+				crawl.mpr("Previously selected pillar killed.")
+				return
+			end
+		end
+		killPillar()
+	end
+	doSearch(px, py)
+    travel.set_waypoint(7, 0, 0)
+end
 
 function invertAuto()
     auto = not auto
@@ -222,6 +241,7 @@ end
 function killPillar()
     hidePillar()
     _pillarDance = false
+    _pillar = nil
     _path = nil
     _seqForward = nil
     _seqBackward = nil
@@ -347,9 +367,9 @@ function doSearch(x, y)
     if pillar == nil then
         return nil
     end
-    local xmin, ymin, xmax, ymax = getBbox(pillar)
+    local xmin, ymin, xmax, ymax = getBbox(pillar.floors)
     -- find two distinct tiles on the outline which are on the outline's axis aligned bounding box.
-    local x1, y1, x2, y2 = findTwoTilesOnBorder(pillar, xmin, ymin, xmax, ymax)
+    local x1, y1, x2, y2 = findTwoTilesOnBorder(pillar.floors, xmin, ymin, xmax, ymax)
     local tileset = getTilesInBox(xmin, ymin, xmax, ymax)
     -- find the shortest path between those two tiles.
     local path = getPath(tileset, x1, y1, x2, y2)
@@ -382,6 +402,7 @@ function doSearch(x, y)
     end
     showTiles(pathTiles)
     _path = path
+    _pillar = pillar.walls
     crawl.mpr("Pillar chosen. Step on one of the excluded tiles and use your pillar dance macro to continue.")
     return path
 end
@@ -465,7 +486,7 @@ function create(x, y)
     if walls == nil then
         return nil
     end
-    return getNeighboringFloors(walls)
+    return {walls=walls, floors=getNeighboringFloors(walls)}
 end
 
 function showTiles(tiles, offx, offy)

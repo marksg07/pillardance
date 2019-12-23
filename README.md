@@ -27,8 +27,8 @@ macros += M K ===funcName
 
 The functions that need to be mapped to keys are:
 
-**inputPillar** -- This is the "find pillar" function. When called, it will prompt the user to choose a tile of the
-pillar that they want to use for pillar dancing. The function will then find the best path around the pillar and
+**inputTogglePillar** -- This is the "find/kill pillar" function. When called, it will prompt the user to choose a (wall) tile of the
+pillar that they want to use for pillar dancing. First, the current pillar will be killed. If the user selected a wall tile of the current pillar, nothing more will happen, the pillar will just be killed. Otherwise, the function will then find the best path around the pillar and
 save it, and show the tiles of that best path by excluding them.
 
 **dancePillar** -- This is the actual "dance pillar" function. When called, if the user is standing on one of the path
